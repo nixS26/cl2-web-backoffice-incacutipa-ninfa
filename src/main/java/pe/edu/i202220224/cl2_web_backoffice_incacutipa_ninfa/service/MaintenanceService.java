@@ -10,16 +10,10 @@ import java.util.List;
 public interface MaintenanceService {
 
     List<FilmDto> findAllFilms();
-    FilmDetailDto findFilmById(int id); //buscar por el id
-
+    FilmDetailDto findFilmById(int id);
     Boolean updateFilm(FilmDetailDto filmDetailDto);
-
-    // Nuevo método para obtener los lenguajes
     List<LanguageDto> findAllLanguages();
-
-    //----------------------INSERCION DE IMPLEMENTACION PARA EL REGISTRO
     Boolean addFilm(FilmInsertDto filmInsertDto);
-
     Boolean deleteFilm(int id);
 
 }

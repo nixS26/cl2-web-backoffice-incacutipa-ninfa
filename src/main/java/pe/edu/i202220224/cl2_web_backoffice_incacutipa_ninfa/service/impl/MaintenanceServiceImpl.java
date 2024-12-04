@@ -22,22 +22,19 @@ import java.util.*;
 
 @Service
 public class MaintenanceServiceImpl implements MaintenanceService {
-    //se entiende que es un metodo sobre escrito, de la implementacion
-    //ESTAMOS INYECTANDO
+
     @Autowired
     FilmRepository filmRepository;
 
-    //ESTAMOS INYECTANDO DEL REPOSITORY LANGUAGE
     @Autowired
     private LanguageRepository languageRepository;
 
-    //ESTAMOSINYECTANDO EL REPOSITORY DE INVENTORY Y RENTAL
     @Autowired
     private InventoryRepository inventoryRepository;
     @Autowired
     private RentalRepository rentalRepository;
 
-
+    //-------------------IMPLEMENTACION PARA TRAER LA LISTA DE REGISTROS------------------------------------
     @Cacheable(value = "films", unless = "#result == null")
     @Override
     public List<FilmDto> findAllFilms() {
@@ -58,14 +55,14 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         return films ;
     }
 
-    //nuevo emtodo apra poder implementar mi dto
+    //----------------------IMPLEMENTACION PARA TRAER EL DETALLE------------------------------------------
     @Override
-    @Cacheable(value = "films", key = "#id")
+    @Cacheable(value = "films", key = "#id", unless = "#result == null")
     public FilmDetailDto findFilmById(int id) {
 
         Optional<Film> optional = filmRepository.findById(id);
-        return optional.map(    //map es para manipular, fue creado para poder controlar el null//encapsulador
-                film -> new FilmDetailDto(film.getFilmId(), //si esta presente se devuelve los datos
+        return optional.map(
+                film -> new FilmDetailDto(film.getFilmId(),
                         film.getTitle(),
                         film.getDescription(),
                         film.getReleaseYear(),
@@ -78,10 +75,10 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                         film.getRating(),
                         film.getSpecialFeatures(),
                         film.getLastUpdate())
-        ).orElse(null); //si no esta presencte el optional se devuelve null
+        ).orElse(null);
 
     }
-
+    //----------------------IMPLEMENTACION PARA ACTUALIZAR REGISTROS-------------------------------------
     @CacheEvict(value = "films", allEntries = true)
     @Override
     public Boolean updateFilm(FilmDetailDto filmDetailDto) {
@@ -105,7 +102,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
 
-    //----------------------INSERTAMOS LA IMPLEMENTACION PARA TRAER LOS LENGUAJES
+    //---------------------- IMPLEMENTACION PARA TRAER LA LISTA DE LENGUAJES------------------------------
     @Override
     public List<LanguageDto> findAllLanguages() {
         List<LanguageDto> languageDtos = new ArrayList<>();
@@ -117,7 +114,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         return languageDtos;
     }
 
-    //----------------------INSERCION DE IMPLEMENTACION PARA EL REGISTRO
+    //----------------------- IMPLEMENTACION PARA EL REGISTRO---------------------------------------------
     @CacheEvict(value = "films", allEntries = true)
     @Override
     public Boolean addFilm(FilmInsertDto filmInsertDto) {
@@ -145,7 +142,30 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         return true;
     }
 
+    //-----------------------INSERCION DE IMPLEMENTACION PARA ELIMINAR-------------------------------------
+    @CacheEvict(value = "films", allEntries = true)
+    @Override
+    @Transactional
+    public Boolean deleteFilm(int id) {
+        // Buscar el Film
+        Optional<Film> optional = filmRepository.findById(id);
+        if (optional.isPresent()) {
+            Film film = optional.get();
 
+            List<Inventory> inventories = inventoryRepository.findAllByFilm_FilmId(film.getFilmId());
+            inventories.forEach(inventory -> {
+                rentalRepository.deleteAllByInventory(inventory);
+            });
+            inventoryRepository.deleteAll(inventories);
+            filmRepository.delete(film);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //------------------------------VALIDACIONES---------------------------
     public void validateFilmInsertDto(FilmInsertDto filmInsertDto) {
 
         Optional.ofNullable(filmInsertDto.title())
@@ -175,32 +195,6 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
 
-    @CacheEvict(value = "films", allEntries = true)
-    @Override
-    @Transactional
-    public Boolean deleteFilm(int id) {
-        // Buscar el Film
-        Optional<Film> optional = filmRepository.findById(id);
-        if (optional.isPresent()) {
-            Film film = optional.get();
-
-            // Paso 1: Encontrar y eliminar los Rentals relacionados a los Inventories del Film
-            List<Inventory> inventories = inventoryRepository.findAllByFilm_FilmId(film.getFilmId());
-            inventories.forEach(inventory -> {
-                rentalRepository.deleteAllByInventory(inventory);
-            });
-
-            // Paso 2: Eliminar los Inventories relacionados
-            inventoryRepository.deleteAll(inventories);
-
-            // Paso 3: Eliminar el Film
-            filmRepository.delete(film);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
 
 
 

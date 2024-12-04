@@ -15,19 +15,15 @@ import java.util.List;
 @RequestMapping("/maintenance")
 public class MaintenanceController {
 
-
-
     @Autowired
     MaintenanceService maintenanceService;
-
-
 
     @GetMapping("/start")
     public String start(Model model) {
 
-        List<FilmDto> films= maintenanceService.findAllFilms(); //devuelve la colleccion de mi dto(en el dto esta filtrado)
-        model.addAttribute("films",films); //agregar a su modelo, palabra clave y su nombre
-        return "maintenance"; //debe hacer match con el nombre del html el template
+        List<FilmDto> films= maintenanceService.findAllFilms();
+        model.addAttribute("films",films);
+        return "maintenance";
 
     }
     @GetMapping("/detail/{id}")
@@ -37,7 +33,6 @@ public class MaintenanceController {
         model.addAttribute("film",filmDetailDto);
         return "maintenance_detail"; //siempre devuelve una pagina
     }
-
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Integer id, Model model){
 
@@ -45,15 +40,12 @@ public class MaintenanceController {
         model.addAttribute("film",filmDetailDto);
         return "maintenance_edit";
     }
-
     @PostMapping("/edit-confirm")
     public String editConfirm(@ModelAttribute FilmDetailDto filmDetailDto, Model model){
         maintenanceService.updateFilm(filmDetailDto);
         return "redirect:/maintenance/start";
     }
 
-    //
-    //-------------------ENDPOINT PAR ALA INSERCION
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("filmInsertDto", new FilmInsertDto("", "", null, null, null, null, null, null, "", ""));
@@ -61,13 +53,9 @@ public class MaintenanceController {
         return "maintenance_add";
     }
 
-
-    //-----------------
     @PostMapping("/add-confirm")
     public String addConfirm(@ModelAttribute FilmInsertDto filmInsertDto) {
-        // Llamar al servicio para agregar la película
         boolean success = maintenanceService.addFilm(filmInsertDto);
-
         if (success) {
             return "redirect:/maintenance/start";
         } else {
@@ -81,7 +69,6 @@ public class MaintenanceController {
         if (success) {
             return "redirect:/maintenance/start";
         } else {
-            // Agregar un mensaje de error
             return "redirect:/maintenance/start?error=notfound&id=" + id;
         }
     }

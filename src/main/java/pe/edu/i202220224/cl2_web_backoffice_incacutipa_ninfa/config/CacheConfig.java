@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableCaching  // Habilita el uso de caché en la aplicación
+@EnableCaching
 public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {

@@ -21,7 +21,7 @@ public class Inventory {
 
     @ManyToOne
     @JoinColumn(name= "film_id")
-    private Film film; //RELACIONAMOS CON FILM
+    private Film film;
 
     @OneToMany(mappedBy = "inventory", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Rental> rentals;

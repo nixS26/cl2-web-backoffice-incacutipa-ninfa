@@ -14,15 +14,15 @@ import java.util.Date;
 public class FilmActor {
 
     @EmbeddedId
-    private FilmActorPk id; //clae embebida como clave primary
+    private FilmActorPk id;
 
     @ManyToOne
-    @MapsId("actorId") //VINCULAMOS EL CAMPO DE LA CLAVE EMBEBIDA
+    @MapsId("actorId")
     @JoinColumn(name = "actor_id")
     private Actor actor;
 
     @ManyToOne
-    @MapsId("filmId") //VINCULAMOS EL CAMPO DE LA CLAVE EMBEBIDA
+    @MapsId("filmId")
     @JoinColumn(name = "film_id")
     private Film film;
 

@@ -15,13 +15,13 @@
     </div>
 
     <div class="mb-3">
-        <button type="button" id="btnNuevo" class="btn btn-secondary w-25"
+        <button type="button" id="btnNuevo" class="btn btn-success float-end w-25"
                 onclick="location.href='/maintenance/add'">
             Nuevo registro
         </button>
     </div>
 
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover mt-5">
         <tr>
             <th>Código</th>
             <th>Título</th>
@@ -39,20 +39,19 @@
             <td th:text="${film.rentalDuration()}"></td>
             <td th:text="${film.rentalRate()}"></td>
             <td>
-                <a th:href="@{/maintenance/edit/{id}(id=${film.filmId()})}">Editar</a>
+                <a th:href="@{/maintenance/edit/{id}(id=${film.filmId()})}" class="btn btn-primary">Editar</a>
             </td>
             <td>
                 <!-- Enlace de eliminar con data-id y data-name -->
                 <a href="#"
                    th:attr="data-id=${film.filmId()}, data-name=${film.title()}"
                    data-bs-toggle="modal"
-                   data-bs-target="#confirmRemove">
+                   data-bs-target="#confirmRemove" class="btn btn-danger">
                     Eliminar
                 </a>
             </td>
         </tr>
     </table>
-
 </div>
 
 <!-- Modal de confirmación -->
@@ -82,19 +81,12 @@
         crossorigin="anonymous"></script>
 
 <script>
-    // Lógica para actualizar el nombre de la película en el modal de confirmación
     document.getElementById('confirmRemove').addEventListener('show.bs.modal', function (event) {
-
-        // Referenciar al elemento que activó el modal y a sus atributos
         const button = event.relatedTarget;
         const dataId = button.getAttribute('data-id');
         const dataName = button.getAttribute('data-name');
-
-        // Actualizar el texto en el modal
         const filmNameConfirm = document.getElementById('filmNameConfirm');
         filmNameConfirm.textContent = dataName;
-
-        // Actualizar la acción del formulario con el ID de la película
         const deleteForm = document.getElementById('deleteForm');
         deleteForm.action = `/maintenance/remove/${dataId}`;
     });
