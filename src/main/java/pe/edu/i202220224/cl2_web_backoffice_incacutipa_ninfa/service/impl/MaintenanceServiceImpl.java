@@ -1,5 +1,7 @@
 package pe.edu.i202220224.cl2_web_backoffice_incacutipa_ninfa.service.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.i202220224.cl2_web_backoffice_incacutipa_ninfa.dto.FilmDetailDto;
 import pe.edu.i202220224.cl2_web_backoffice_incacutipa_ninfa.dto.FilmDto;
@@ -35,12 +37,11 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     @Autowired
     private RentalRepository rentalRepository;
 
+
+    @Cacheable(value = "films", unless = "#result == null")
     @Override
     public List<FilmDto> findAllFilms() {
 
-        //llamar a findrepository
-
-        //
         List<FilmDto> films = new ArrayList<FilmDto>();
         //recuperar los elemtneos de una lista d efilms
         Iterable<Film> iterable = filmRepository.findAll();
@@ -59,6 +60,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     //nuevo emtodo apra poder implementar mi dto
     @Override
+    @Cacheable(value = "films", key = "#id")
     public FilmDetailDto findFilmById(int id) {
 
         Optional<Film> optional = filmRepository.findById(id);
@@ -80,6 +82,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     }
 
+    @CacheEvict(value = "films", allEntries = true)
     @Override
     public Boolean updateFilm(FilmDetailDto filmDetailDto) {
         Optional<Film> optional = filmRepository.findById(filmDetailDto.filmId());
@@ -115,6 +118,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     //----------------------INSERCION DE IMPLEMENTACION PARA EL REGISTRO
+    @CacheEvict(value = "films", allEntries = true)
     @Override
     public Boolean addFilm(FilmInsertDto filmInsertDto) {
         // Validar el DTO
@@ -171,6 +175,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
 
+    @CacheEvict(value = "films", allEntries = true)
     @Override
     @Transactional
     public Boolean deleteFilm(int id) {
